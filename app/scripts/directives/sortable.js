@@ -44,7 +44,7 @@ angular.module('sortable', [])
                     setClasses();
                 });
 
-                scope.$watch(function() { return sortableSetCtrl.isSortReversed();}, function(newKey) {
+                scope.$watch(function() { return sortableSetCtrl.isSortReversed();}, function() {
                     setClasses();
                 });
                 
