@@ -4,7 +4,8 @@ angular.module('sortable', [])
             restrict: 'A',
             scope: {
                 reverseSort: '=',
-                sortBy: '='
+                sortBy: '=',
+                onSortChanged: '='
             },
             controller: function($scope) {
                 $scope.reverseSort = $scope.reverseSort || false;
@@ -12,12 +13,13 @@ angular.module('sortable', [])
                 this.sortBy = function(key) {
                     if(key == $scope.sortBy) {
                         $scope.reverseSort = !$scope.reverseSort;
-                        console.log($scope.re);
                     }
                     else {
-                        $scope.reverse = false;
+                        $scope.reverseSort = false;
                         $scope.sortBy = key;
                     }
+
+                    $scope.onSortChanged($scope.sortBy, $scope.reverseSort);
                 };
 
                 this.getSortKey = function() {

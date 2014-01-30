@@ -7,6 +7,10 @@ angular.module('workspaceApp')
         console.log('New active', newActiveElement);
     };
 
+    $scope.sortChangedAA = function(sortKey, reverseSort) {
+        console.log(sortKey, reverseSort);
+    }
+
     $scope.records = [
         {"name": "Moroni", "allowance": 505050505050505050,  "paid": true},
         {"name": "Tiancum", "allowance": 53,  "paid": false},
