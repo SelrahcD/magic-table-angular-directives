@@ -1,0 +1,62 @@
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-hover" selectable-set selectable-elements="records" selected-elements="selectedElementsAA">
+            <thead>
+                <tr sortable-set sort-by="sortByAA" reverse-sort="reverseSortAA">
+                    <th><select-all /></th><th sortable="name">Name</th><th sortable="allowance">Allowance</th><th sortable="paid">Paid</th>
+                </tr>
+            </thead>
+            <tbody activable-set active-element="activeElementAA" active-change="activeChangeAA">
+                <tr ng-repeat="record in records" activable selectable>
+                    <td><select-box class="block-active"/></td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.allowance }}</td>
+                    <td>{{ record.paid }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <button class="btn btn-default" ng-click="addSomeMoreRecords()">Add some more records !</button>
+        <button class="btn btn-default" ng-click="changeRandomActiveRecord()">Randomly change active record</button>
+        <button class="btn btn-default" ng-click="toggleRandomSelectedRecord()">Toggle a record for selection</button>
+        <hr />
+        Sort by : {{ sortByAA }} <br />
+        Reverse sort : {{ reverseSortAA }}
+        <hr />
+        Active element : {{ activeElementAA }}
+        <hr />
+        Selected elements : {{ selectedElementsAA }}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-hover" selectable-set selectable-elements="records" selected-elements="selectedElementsBB">
+            <thead>
+                <tr sortable-set sort-by="sortByBB" reverse-sort="reverseSortBB">
+                    <th><select-all /></th><th sortable="name">Name</th><th sortable="allowance">Allowance</th><th sortable="paid">Paid</th>
+                </tr>
+            </thead>
+            <tbody activable-set active-element="activeElementBB">
+                <tr ng-repeat="record in records" activable selectable>
+                    <td><select-box class="block-active"/></td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.allowance }}</td>
+                    <td>{{ record.paid }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <button class="btn btn-default" ng-click="changeRandomActiveRecordBB()">Randomly change active record</button>
+        <button class="btn btn-default" ng-click="toggleRandomSelectedRecordBB()">Toggle a record for selection</button>
+        <hr />
+        Sort by : {{ sortByBB }} <br />
+        Reverse sort : {{ reverseSortBB }}
+        <hr />
+        Active element : {{ activeElementBB }}
+        <hr />
+        Selected elements : {{ selectedElementsBB }}
+    </div>
+</div>
