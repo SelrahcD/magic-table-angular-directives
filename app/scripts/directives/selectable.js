@@ -7,6 +7,7 @@ angular.module('selectable', [])
                 selectedElements: '='
             },
             controller: function($scope) {
+
                 this.toggleSelection = function(value) {
                     if(!angular.isArray($scope.selectedElements)){
                         return;
@@ -23,6 +24,7 @@ angular.module('selectable', [])
                 };
 
                 this.toggleSelectAll = function() {
+
                     if(!angular.isArray($scope.selectedElements) || !angular.isArray($scope.selectableElements)) {
                         return;
                     }
@@ -87,6 +89,7 @@ angular.module('selectable', [])
         return {
             restrict: 'E',
             require: '^selectable',
+            scope: true,
             template: '<div><input type="checkbox" ng-click="toggleSelection()" ng-model="selected"/></div>'
         }
     })
@@ -94,8 +97,10 @@ angular.module('selectable', [])
         return {
             restrict: 'E',
             require: '^selectableSet',
+            scope: true,
             template: '<div><input type="checkbox" ng-click="toggleSelectAll()" ng-model="allSelected"/></div>',
             link: function(scope, element, attr, selectableSetCtrl) {
+
                 scope.toggleSelectAll = function () {
                     selectableSetCtrl.toggleSelectAll();
                 }

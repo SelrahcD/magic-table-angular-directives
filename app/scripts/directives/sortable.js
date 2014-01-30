@@ -18,8 +18,10 @@ angular.module('sortable', [])
                         $scope.reverseSort = false;
                         $scope.sortBy = key;
                     }
-
-                    $scope.onSortChanged($scope.sortBy, $scope.reverseSort);
+                    
+                    if(angular.isFunction($scope.onSortChanged)) {
+                        $scope.onSortChanged($scope.sortBy, $scope.reverseSort);
+                    }
                 };
 
                 this.getSortKey = function() {
