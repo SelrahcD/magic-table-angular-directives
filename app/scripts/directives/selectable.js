@@ -82,6 +82,14 @@ angular.module('selectable', [])
                     selectableSetCtrl.toggleSelection(scope[valueIdent]);             
                 }
 
+                element.on('click', function(event) {
+                    if(event.ctrlKey) {
+                        scope.$apply(function() {
+                           selectableSetCtrl.toggleSelection(scope[valueIdent]); 
+                        });
+                    }
+                });
+
             }
         }
     })
