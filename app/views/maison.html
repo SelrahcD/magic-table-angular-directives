@@ -8,6 +8,7 @@
             </thead>
             <tbody activable-set active-element="activeElementAA" active-change="activeChangeAA">
                 <tr ng-repeat="record in records" activable selectable>
+                    <td>{{ $index }}</td>
                     <td><select-box class="block-active"/></td>
                     <td>{{ record.name }}</td>
                     <td>{{ record.allowance }}</td>

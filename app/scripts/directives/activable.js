@@ -58,7 +58,7 @@ angular.module('activable', [])
                 });
 
                 element.on('click', function(event) {
-                    if(!$(event.toElement).parents('.block-active').length && ! event.ctrlKey) {
+                    if(!$(event.toElement).parents('.block-active').length && !event.ctrlKey && ! event.shiftKey) {
                         scope.$apply(function() {
                             activableSetCtrl.toggleActive(element, scope[valueIdent]);
                         });

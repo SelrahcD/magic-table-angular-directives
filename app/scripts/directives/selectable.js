@@ -8,18 +8,24 @@ angular.module('selectable', [])
             },
             controller: function($scope) {
 
-                this.toggleSelection = function(value) {
+                var lastClickedIndex,
+                    shifftedSelectedElements = [];
+
+                this.toggleSelection = function(index) {
+                    lastClickedIndex = index;
+                    shifftedSelectedElements.length = 0;
+
                     if(!angular.isArray($scope.selectedElements)){
                         return;
                     }
 
-                    var index = $scope.selectedElements.indexOf(value);
+                    var element = getElementAtIndex(index);
 
-                    if(index > -1) {
-                        $scope.selectedElements.splice(index, 1);
+                    if(isElementSelected(element)) {
+                        unselectElement(element);
                     }
                     else {
-                        $scope.selectedElements.push(value);
+                        selectElement(element);
                     }
                 };
 
@@ -50,7 +56,66 @@ angular.module('selectable', [])
 
                 this.getSelectedElements = function() {
                     return $scope.selectedElements;
-                }
+                };
+
+                this.shiftedClick = function(index) {
+                    if(typeof lastClickedIndex !== undefined) {
+                        toggleRangeUpTo(lastClickedIndex, index);
+                    }
+                };
+
+                function toggleRangeUpTo(firstIndex, lastIndex) {
+     
+                    var lastElement = getElementAtIndex(lastIndex),
+                        min = Math.min(firstIndex, lastIndex),
+                        max = Math.max(firstIndex, lastIndex),
+                        element;
+
+                    angular.forEach(shifftedSelectedElements, function(element, index) {
+                        unselectElement(element);
+                    });
+
+                    if(isElementSelected(lastElement)) {
+
+                        for(var i = min; i <= max; i++) {
+                            element = getElementAtIndex(i);
+                            unselectElement(element);
+                        }
+
+                        lastClickedIndex = lastIndex;
+                        shifftedSelectedElements.length = 0;
+                    }
+                    else {
+                        shifftedSelectedElements.length = 0;
+                        for(var i = min; i <= max; i++) {
+                            element = getElementAtIndex(i);
+                            selectElement(element);
+                            shifftedSelectedElements.push(element);
+                        }
+                    }
+                };
+
+                function getElementAtIndex(index) {
+                    return $scope.selectableElements[index];
+                };
+
+                function isElementSelected(element) {
+                    return $scope.selectedElements.indexOf(element) > -1;
+                };
+
+                function selectElement(element) {
+                    if(!isElementSelected(element)) {
+                        $scope.selectedElements.push(element);
+                    }
+                };
+
+                function unselectElement(element) {
+                    var index = $scope.selectedElements.indexOf(element);
+                    if(index > -1) {
+                        // console.log(element);
+                        $scope.selectedElements.splice(index, 1);
+                    }
+                };
             }
         };
     })
@@ -78,17 +143,20 @@ angular.module('selectable', [])
                     }
                 });
 
-                scope.toggleSelection = function() {
-                    selectableSetCtrl.toggleSelection(scope[valueIdent]);             
-                }
-
                 element.on('click', function(event) {
-                    if(event.ctrlKey) {
-                        scope.$apply(function() {
-                           selectableSetCtrl.toggleSelection(scope[valueIdent]); 
-                        });
-                    }
+                    scope.$apply(function() {
+                        handleClick(event);
+                    });
                 });
+
+                function handleClick(event) {
+                    if(event.shiftKey) {
+                        selectableSetCtrl.shiftedClick(scope.$index);
+                    }
+                    else if(event.ctrlKey || angular.element(event.toElement)[0].type === 'checkbox') {
+                        selectableSetCtrl.toggleSelection(scope.$index);
+                    }
+                }
 
             }
         }
@@ -97,8 +165,7 @@ angular.module('selectable', [])
         return {
             restrict: 'E',
             require: '^selectable',
-            scope: true,
-            template: '<div><input type="checkbox" ng-click="toggleSelection()" ng-model="selected"/></div>'
+            template: '<div><input type="checkbox" ng-model="selected"/></div>'
         }
     })
     .directive('selectAll', function() {

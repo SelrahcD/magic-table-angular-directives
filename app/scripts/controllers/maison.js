@@ -12,10 +12,18 @@ angular.module('workspaceApp')
     }
 
     $scope.records = [
-        {"name": "Moroni", "allowance": 505050505050505050,  "paid": true},
         {"name": "Tiancum", "allowance": 53,  "paid": false},
         {"name": "Jacob", "allowance": 27,  "paid": false},
-        {"name": "Nephi", "allowance": 29,  "paid": false}];
+        {"name": "Nephi", "allowance": 29,  "paid": false},
+        {"name": "Enos", "allowance": 34,  "paid": false},
+        {"name": "Ether", "allowance": 42,  "paid": false},
+        {"name": "Alma", "allowance": 43,  "paid": true},
+        {"name": "Jared", "allowance": 21,  "paid": true},
+        {"name": "Moroni", "allowance": 50,  "paid": true},
+        {"name": "Tiancum", "allowance": 53,  "paid": false},
+        {"name": "Jacob", "allowance": 27,  "paid": false},
+        {"name": "Nephi", "allowance": 29,  "paid": false},
+        {"name": "Enos", "allowance": 34,  "paid": false}];
 
     $scope.recordsBB = [
         {"name": "Ether", "allowance": 42,  "paid": false},
@@ -24,7 +32,7 @@ angular.module('workspaceApp')
         {"name": "Moroni", "allowance": 50,  "paid": true}];
     
     $scope.activeElementAA =  $scope.records[0];
-    $scope.selectedElementsAA = [$scope.records[1], $scope.records[3]];
+    $scope.selectedElementsAA = [];
     $scope.sortByAA = 'paid';
     $scope.reverseSortAA = true;
 
