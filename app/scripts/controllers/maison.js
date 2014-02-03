@@ -32,7 +32,7 @@ angular.module('workspaceApp')
         {"name": "Moroni", "allowance": 50,  "paid": true}];
     
     $scope.activeElementAA =  $scope.records[0];
-    $scope.selectedElementsAA = [];
+    $scope.selectedElementsAA = [$scope.records[2], $scope.records[6]];
     $scope.sortByAA = 'paid';
     $scope.reverseSortAA = true;
 

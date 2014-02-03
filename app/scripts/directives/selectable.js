@@ -64,6 +64,10 @@ angular.module('selectable', [])
                     }
                 };
 
+                this.getElementAtIndex = function(index) {
+                    return getElementAtIndex(index);
+                };
+
                 function toggleRangeUpTo(firstIndex, lastIndex) {
      
                     var lastElement = getElementAtIndex(lastIndex),
@@ -124,18 +128,10 @@ angular.module('selectable', [])
             restrict: 'A',
             require: '^selectableSet',
             link: function(scope, element, attr, selectableSetCtrl) {
-                // We need the collection used in the ng-repeat directive
-                // and we can't access it so just do as ng-repeat does...
-                var expression = attr.ngRepeat;
-                var match = expression.match(/^\s*(.+)\s+in\s+(.*)\s*$/),
-                    lhs, valueIdent;
-                lhs = match[1];
-                match = lhs.match(/^(?:([\$\w]+)|\(([\$\w]+)\s*,\s*([\$\w]+)\))$/);
-                valueIdent = match[3] || match[1];
 
                 scope.$watchCollection(function() { return selectableSetCtrl.getSelectedElements(); }, function(newSelection, oldSelection) {
 
-                    if(newSelection.indexOf(scope[valueIdent]) > -1) {
+                    if(newSelection.indexOf(selectableSetCtrl.getElementAtIndex(scope.$index)) > -1) {
                         scope.selected = true;
                     }
                     else {
