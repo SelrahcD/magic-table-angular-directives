@@ -13,6 +13,14 @@ angular.module('selectable', [])
                 var lastClickedIndex,
                     shifftedSelectedElements = [];
 
+                if(!angular.isArray($scope.selectableElements) || !angular.isArray($scope.selectedElements)) {
+                    throw "You have to provide an array of selectable elements and an array of selected elements to the selectable-set directive.";
+                }
+
+                $scope.$watchCollection('selectableElements', function() {
+                    $scope.selectedElements.length = 0;
+                });
+
                 this.toggleSelection = function(index) {
                     lastClickedIndex = index;
                     shifftedSelectedElements.length = 0;

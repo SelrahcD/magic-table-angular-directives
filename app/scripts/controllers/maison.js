@@ -4,11 +4,11 @@ angular.module('workspaceApp')
   .controller('MaisonCtrl', function ($scope) {
 
     $scope.activeChangeAA = function(newActiveElement, oldActiveElement) {
-        console.log('New active', newActiveElement);
+        console.log('New active', newActiveElement, $scope.activeElementAA);
     };
 
     $scope.sortChangedAA = function(sortKey, reverseSort) {
-        console.log(sortKey, reverseSort);
+        console.log(sortKey, reverseSort, $scope.sortByAA, $scope.reverseSortAA);
     }
 
     $scope.records = [
