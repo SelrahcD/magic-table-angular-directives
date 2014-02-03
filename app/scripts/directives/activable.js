@@ -9,27 +9,41 @@ angular.module('activable', [])
                 activeChange: '='
             },
             controller: ['$scope', function($scope) {
+               var activeElement;
 
-                this.toggleActive = function(element, value) {
-                    if(value !== $scope.activeElement) {
-                        if(angular.isFunction($scope.activeChange)) {
-                            $scope.activeChange(value, $scope.activeElement);
-                        }
+               $scope.$watch('activeElement', function(newActiveElement) {
+                    activeElement = newActiveElement;
+               });
+               
+               this.toggleActive = function(element, value) {
+                   if(value !== activeElement) {
 
-                        $scope.activeElement = value;
-                    }
-                    else {
-                        if(angular.isFunction($scope.activeChange)) {
-                            $scope.activeChange(undefined, $scope.activeElement);
-                        }
+                       if(angular.isFunction($scope.activeChange)) {
+                           $scope.activeChange(value, activeElement);
+                       }
 
-                        $scope.activeElement = undefined;
-                    }
-                };
+                       if(typeof $scope.activeElement !== 'undefined') {
+                           $scope.activeElement = value;
+                       }
 
-                this.getActiveElement = function() {
-                   return $scope.activeElement;
-                }
+                       activeElement = value;
+                   }
+                   else {
+                       if(angular.isFunction($scope.activeChange)) {
+                           $scope.activeChange(undefined, activeElement);
+                       }
+
+                       if(typeof $scope.activeElement !== 'undefined') {
+                           $scope.activeElement = undefined;
+                       }
+
+                       activeElement = undefined;
+                   }
+               };
+
+               this.getActiveElement = function() {
+                  return activeElement;
+               }
             }]
         };
     })
