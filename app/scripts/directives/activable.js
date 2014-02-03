@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('activable', [])
     .directive('activableSet', function() {
         return {
@@ -6,7 +8,7 @@ angular.module('activable', [])
                 activeElement: '=',
                 activeChange: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
 
                 this.toggleActive = function(element, value) {
                     if(value !== $scope.activeElement) {
@@ -28,7 +30,7 @@ angular.module('activable', [])
                 this.getActiveElement = function() {
                    return $scope.activeElement;
                 }
-            }
+            }]
         };
     })
     .directive('activable', function() {

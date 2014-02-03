@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('selectable', [])
     .directive('selectableSet', function() {
         return {
@@ -6,7 +8,7 @@ angular.module('selectable', [])
                 selectableElements: '=',
                 selectedElements: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
 
                 var lastClickedIndex,
                     shifftedSelectedElements = [];
@@ -120,7 +122,7 @@ angular.module('selectable', [])
                         $scope.selectedElements.splice(index, 1);
                     }
                 };
-            }
+            }]
         };
     })
     .directive('selectable', function() {

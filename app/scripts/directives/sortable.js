@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('sortable', [])
     .directive('sortableSet', function() {
         return {
@@ -7,7 +9,7 @@ angular.module('sortable', [])
                 sortBy: '=',
                 onSortChanged: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 $scope.reverseSort = $scope.reverseSort || false;
 
                 this.sortBy = function(key) {
@@ -31,7 +33,7 @@ angular.module('sortable', [])
                 this.isSortReversed = function() {
                     return $scope.reverseSort;
                 };
-            }
+            }]
         };
     })
     .directive('sortable', function() {
