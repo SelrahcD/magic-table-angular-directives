@@ -20,6 +20,10 @@ angular.module('workspaceApp', [
         templateUrl: 'views/maison.html',
         controller: 'MaisonCtrl'
       })
+      .when('/change', {
+        templateUrl: 'views/change.html',
+        controller: 'ChangeCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

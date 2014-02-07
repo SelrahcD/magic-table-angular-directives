@@ -1,35 +1,39 @@
 'use strict';
-
+/// This directive currently depend on ng-repeat $index for the shift selection. It would be great to remove this depency.
 angular.module('selectable', [])
     .directive('selectableSet', function() {
         return {
             restrict: 'A',
-            scope: {
-                selectableElements: '=',
-                selectedElements: '='
-            },
-            controller: ['$scope', function($scope) {
+            controller: ['$scope', '$parse', '$element', '$attrs', '$document', function($scope, $parse, $element, $attrs, $document) {
+                var self = this,
+                    shiftKey = 16;
+
+                var selectedElementsGet = $parse($attrs.selectedElements),
+                    selectedElementsSet = selectedElementsGet.assign;
+
+                this.selectableElements = [];
+                this.selectedElements = selectedElementsGet($scope);
 
                 var lastClickedIndex,
-                    shifftedSelectedElements = [];
+                    shiftSelectedElements = [];
 
-                if(!angular.isArray($scope.selectableElements) || !angular.isArray($scope.selectedElements)) {
-                    throw "You have to provide an array of selectable elements and an array of selected elements to the selectable-set directive.";
-                }
-
-                $scope.$watchCollection('selectableElements', function() {
-                    $scope.selectedElements.length = 0;
+                // Toggle a noselect class on the element when the shift key is pressed
+                // This allows us to disable selection overlay via css
+                $document.on('keydown', function(event) {
+                    if(event.keyCode === shiftKey) {
+                        $element.addClass('noselect');
+                    }
                 });
 
-                this.toggleSelection = function(index) {
-                    lastClickedIndex = index;
-                    shifftedSelectedElements.length = 0;
-
-                    if(!angular.isArray($scope.selectedElements)){
-                        return;
+                $document.on('keyup', function(event) {
+                    if(event.keyCode === shiftKey) {
+                        $element.removeClass('noselect');
                     }
+                });
 
-                    var element = getElementAtIndex(index);
+                this.toggleSelection = function(element, index) {
+                    lastClickedIndex = index;
+                    shiftSelectedElements.length = 0;
 
                     if(isElementSelected(element)) {
                         unselectElement(element);
@@ -41,93 +45,73 @@ angular.module('selectable', [])
 
                 this.toggleSelectAll = function() {
 
-                    if(!angular.isArray($scope.selectedElements) || !angular.isArray($scope.selectableElements)) {
-                        return;
-                    }
-                    if($scope.selectedElements.length === $scope.selectableElements.length){
-                        $scope.selectedElements.length = 0;
+                    if(this.selectedElements.length === this.selectableElements.length){
+                        this.selectedElements.length = 0;
                     }
                     else {
                         var index;
-                        angular.forEach($scope.selectableElements, function(element) {
-                            index = $scope.selectedElements.indexOf(element);
-                            if(index === -1) {
-                                $scope.selectedElements.push(element);
+                        angular.forEach(this.selectableElements, function(element) {
+                            if(!isElementSelected(element)) {
+                                selectElement(element);
                             }
                         });
                     }
                 };
 
-                this.isAllSelected = function() {
-                    if(angular.isArray($scope.selectableElements)){
-                        return $scope.selectedElements.length === $scope.selectableElements.length;
-                    }   
-                };
-
-                this.getSelectedElements = function() {
-                    return $scope.selectedElements;
-                };
-
-                this.shiftedClick = function(index) {
+                this.shiftedClick = function(element, index) {
                     if(typeof lastClickedIndex !== undefined) {
                         toggleRangeUpTo(lastClickedIndex, index);
                     }
                 };
 
-                this.getElementAtIndex = function(index) {
-                    return getElementAtIndex(index);
-                };
-
                 function toggleRangeUpTo(firstIndex, lastIndex) {
-     
+                    
                     var lastElement = getElementAtIndex(lastIndex),
                         min = Math.min(firstIndex, lastIndex),
                         max = Math.max(firstIndex, lastIndex),
                         element;
 
-                    angular.forEach(shifftedSelectedElements, function(element, index) {
+                    angular.forEach(shiftSelectedElements, function(element, index) {
                         unselectElement(element);
                     });
 
                     if(isElementSelected(lastElement)) {
-
                         for(var i = min; i <= max; i++) {
                             element = getElementAtIndex(i);
                             unselectElement(element);
                         }
 
                         lastClickedIndex = lastIndex;
-                        shifftedSelectedElements.length = 0;
+                        shiftSelectedElements.length = 0;
                     }
                     else {
-                        shifftedSelectedElements.length = 0;
+                        shiftSelectedElements.length = 0;
                         for(var i = min; i <= max; i++) {
                             element = getElementAtIndex(i);
                             selectElement(element);
-                            shifftedSelectedElements.push(element);
+                            shiftSelectedElements.push(element);
                         }
                     }
                 };
 
                 function getElementAtIndex(index) {
-                    return $scope.selectableElements[index];
-                };
+                    return self.selectableElements[index];
+                }
 
                 function isElementSelected(element) {
-                    return $scope.selectedElements.indexOf(element) > -1;
+                    return self.selectedElements.indexOf(element) > -1;
                 };
 
                 function selectElement(element) {
                     if(!isElementSelected(element)) {
-                        $scope.selectedElements.push(element);
+                        self.selectedElements.push(element);
                     }
                 };
 
                 function unselectElement(element) {
-                    var index = $scope.selectedElements.indexOf(element);
+                    var index = self.selectedElements.indexOf(element);
                     if(index > -1) {
-                        // console.log(element);
-                        $scope.selectedElements.splice(index, 1);
+                        self.selectedElements.splice(index, 1);
                     }
                 };
             }]
@@ -137,16 +121,21 @@ angular.module('selectable', [])
         return {
             restrict: 'A',
             require: '^selectableSet',
-            link: function(scope, element, attr, selectableSetCtrl) {
+            link: function(scope, element, attr, ctrl) {
 
-                scope.$watchCollection(function() { return selectableSetCtrl.getSelectedElements(); }, function(newSelection, oldSelection) {
+                var currentElement = scope[attr.selectable];
 
-                    if(newSelection.indexOf(selectableSetCtrl.getElementAtIndex(scope.$index)) > -1) {
-                        scope.selected = true;
+                ctrl.selectableElements.push(currentElement);
+
+                scope.$on('$destroy', function() {
+                    var index = ctrl.selectableElements.indexOf(currentElement);
+                    if(index > -1) {
+                        ctrl.selectableElements.splice(index, 1);
                     }
-                    else {
-                        scope.selected = false;
-                    }
+                });
+
+                scope.$watchCollection(function() { return ctrl.selectedElements; }, function(newSelection) {
+                        scope.selected = newSelection.indexOf(currentElement) > -1;
                 });
 
                 element.on('click', function(event) {
@@ -157,10 +146,10 @@ angular.module('selectable', [])
 
                 function handleClick(event) {
                     if(event.shiftKey) {
-                        selectableSetCtrl.shiftedClick(scope.$index);
+                        ctrl.shiftedClick(currentElement, scope.$index);
                     }
                     else if(event.ctrlKey || angular.element(event.toElement)[0].type === 'checkbox') {
-                        selectableSetCtrl.toggleSelection(scope.$index);
+                        ctrl.toggleSelection(currentElement, scope.$index);
                     }
                 }
 
@@ -180,14 +169,14 @@ angular.module('selectable', [])
             require: '^selectableSet',
             scope: true,
             template: '<div><input type="checkbox" ng-click="toggleSelectAll()" ng-model="allSelected"/></div>',
-            link: function(scope, element, attr, selectableSetCtrl) {
+            link: function(scope, element, attr, ctrl) {
 
                 scope.toggleSelectAll = function () {
-                    selectableSetCtrl.toggleSelectAll();
-                }
+                    ctrl.toggleSelectAll();
+                };
 
-                scope.$watch(function() { return selectableSetCtrl.isAllSelected();}, function(isAllSelected) {
-                    scope.allSelected = isAllSelected;
+                scope.$watchCollection(function() { return ctrl.selectedElements; }, function() {
+                    scope.allSelected = ctrl.selectedElements.length === ctrl.selectableElements.length;
                 });
             }
         }

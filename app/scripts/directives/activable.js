@@ -4,46 +4,39 @@ angular.module('activable', [])
     .directive('activableSet', function() {
         return {
             restrict: 'A',
-            scope: {
-                activeElement: '=',
-                activeChange: '='
-            },
-            controller: ['$scope', function($scope) {
-               var activeElement;
+            controller: ['$scope', '$attrs', '$parse', function($scope, $attrs, $parse) {
+                this.activeElement;
 
-               $scope.$watch('activeElement', function(newActiveElement) {
-                    activeElement = newActiveElement;
-               });
+                var activeElementGet = $parse($attrs.activeElement),
+                    activeElementSet = activeElementGet.assign;
                
-               this.toggleActive = function(element, value) {
-                   if(value !== activeElement) {
 
-                       if(angular.isFunction($scope.activeChange)) {
-                           $scope.activeChange(value, activeElement);
-                       }
+                var self = this;
+                $scope.$watch(function() {
+                    return activeElementGet($scope);
+                }, function(newActiveElement) {
+                    self.activeElement = newActiveElement;
+                });
 
-                       if(typeof $scope.activeElement !== 'undefined') {
-                           $scope.activeElement = value;
-                       }
+               this.toggleActive = function(value) {
+                    if(value !== this.activeElement) {
+                        if(activeElementSet) {
+                            activeElementSet($scope, value);
+                        }
+                        
+                        this.activeElement = value;
+                    }
+                    else {
+                        if(activeElementSet) {
+                            activeElementSet($scope, null);
+                        }
 
-                       activeElement = value;
-                   }
-                   else {
-                       if(angular.isFunction($scope.activeChange)) {
-                           $scope.activeChange(undefined, activeElement);
-                       }
+                        this.activeElement = undefined;
+                    }
 
-                       if(typeof $scope.activeElement !== 'undefined') {
-                           $scope.activeElement = undefined;
-                       }
-
-                       activeElement = undefined;
-                   }
+                    $scope.$eval($attrs.activeChange);
                };
 
-               this.getActiveElement = function() {
-                  return activeElement;
-               }
             }]
         };
     })
@@ -51,21 +44,14 @@ angular.module('activable', [])
         return {
             restrict: 'A',
             require: '^activableSet',
-            scope: true,
-            link: function(scope, element, attr, activableSetCtrl) {
-                
-                // We need the collection used in the ng-repeat directive
-                // and we can't access it so just do as ng-repeat does...
-                var expression = attr.ngRepeat;
-                var match = expression.match(/^\s*(.+)\s+in\s+(.*)\s*$/),
-                    lhs, valueIdent;
-                lhs = match[1];
-                match = lhs.match(/^(?:([\$\w]+)|\(([\$\w]+)\s*,\s*([\$\w]+)\))$/);
-                valueIdent = match[3] || match[1];
+            link: function(scope, element, attr, ctrl) {
+                element.addClass('clickable');
 
-                scope.$watch(function() { return activableSetCtrl.getActiveElement(); }, function(newActiveElement, oldActiveElement) {
+                var currentElement = scope[attr.activable];
 
-                    if(scope[valueIdent] === newActiveElement) {
+                scope.$watch(function() { return ctrl.activeElement; }, function(newActiveElement, oldActiveElement) {
+                    // console.log(newActiveElement);
+                    if(currentElement === newActiveElement) {
                         element.addClass('active');
                     }
                     else {
@@ -76,7 +62,7 @@ angular.module('activable', [])
                 element.on('click', function(event) {
                     if(!$(event.toElement).parents('.block-active').length && !event.ctrlKey && ! event.shiftKey) {
                         scope.$apply(function() {
-                            activableSetCtrl.toggleActive(element, scope[valueIdent]);
+                            ctrl.toggleActive(currentElement);
                         });
                     }
                 });

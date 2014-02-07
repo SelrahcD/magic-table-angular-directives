@@ -4,35 +4,50 @@ angular.module('sortable', [])
     .directive('sortableSet', function() {
         return {
             restrict: 'A',
-            scope: {
-                reverseSort: '=',
-                sortBy: '=',
-                onSortChanged: '='
-            },
-            controller: ['$scope', function($scope) {
+            controller: ['$scope', '$parse', '$element', '$attrs', function($scope, $parse, $element, $attrs) {
+                var self = this;
+                this.reverseSort = false;
+                this.sortKey = '';
+
                 $scope.reverseSort = $scope.reverseSort || false;
 
+                var reverseSortGet = $parse($attrs.reverseSort),
+                    reverseSortSet = reverseSortGet.assign,
+                    sortKeyGet = $parse($attrs.sortBy),
+                    sortKeySet = sortKeyGet.assign;
+
+                $scope.$watch(function() {
+                    return reverseSortGet($scope);
+                }, function(newReverseSort) {
+                    self.reverseSort = newReverseSort;
+                });
+
+                $scope.$watch(function() {
+                    return sortKeyGet($scope);
+                }, function(newSortKey) {
+                    self.sortKey = newSortKey;
+                });
+
                 this.sortBy = function(key) {
-                    if(key == $scope.sortBy) {
-                        $scope.reverseSort = !$scope.reverseSort;
+                    if(key == this.sortKey) {
+                        this.reverseSort = !this.reverseSort;
                     }
                     else {
-                        $scope.reverseSort = false;
-                        $scope.sortBy = key;
+                        this.reverseSort = false;
+                        this.sortKey = key;
                     }
                     
-                    if(angular.isFunction($scope.onSortChanged)) {
-                        $scope.onSortChanged($scope.sortBy, $scope.reverseSort);
+                    if(reverseSortSet) {
+                        reverseSortSet($scope, this.reverseSort);
                     }
+
+                    if(sortKeySet) {
+                        sortKeySet($scope, this.sortKey);
+                    }
+
+                    $scope.$eval($attrs.sortChange);
                 };
 
-                this.getSortKey = function() {
-                    return $scope.sortBy;
-                };
-
-                this.isSortReversed = function() {
-                    return $scope.reverseSort;
-                };
             }]
         };
     })
@@ -40,30 +55,30 @@ angular.module('sortable', [])
         return {
             restrict: 'A',
             require: '^sortableSet',
-            link: function(scope, element, attr, sortableSetCtrl) {
+            link: function(scope, element, attr, ctrl) {
                 var key = attr.sortable;
-                var element =angular.element(element); 
+                var element = angular.element(element); 
                 
                 element.addClass('sortable sort');
 
-                scope.$watch(function() { return sortableSetCtrl.getSortKey();}, function() {
+                scope.$watch(function() { return ctrl.sortKey;}, function() {
                     setClasses();
                 });
 
-                scope.$watch(function() { return sortableSetCtrl.isSortReversed();}, function() {
+                scope.$watch(function() { return ctrl.reverseSort;}, function() {
                     setClasses();
                 });
                 
                 element.on('click', function() {
                     scope.$apply(function() {
-                        sortableSetCtrl.sortBy(key);
+                        ctrl.sortBy(key);
                     });
                 });
 
                 function setClasses() {
-                    if(sortableSetCtrl.getSortKey() === key){
+                    if(ctrl.sortKey === key){
                         element.removeClass('no-sort');
-                        if(sortableSetCtrl.isSortReversed()) {
+                        if(ctrl.reverseSort) {
                             element.removeClass('sort-down').addClass('sort-up');
                         }
                         else {

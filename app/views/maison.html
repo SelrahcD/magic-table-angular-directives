@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-md-6">
-        <table class="table table-hover" selectable-set selectable-elements="records" selected-elements="selectedElementsAA">
+        <table class="table table-hover" selectable-set selected-elements="selectedElementsAA" activable-set active-element="activeElementAA" active-change="activeChangeAA()">
             <thead>
-                <tr sortable-set sort-by="sortByAA" reverse-sort="reverseSortAA" on-sort-changed="sortChangedAA">
+                <tr sortable-set sort-by="sortByAA" reverse-sort="reverseSortAA" sort-change="sortChangedAA()">
                     <th><select-all /></th><th sortable="name">Name</th><th sortable="allowance">Allowance</th><th sortable="paid">Paid</th>
                 </tr>
             </thead>
-            <tbody activable-set active-element="activeElementAA" active-change="activeChangeAA">
-                <tr ng-repeat="record in records" activable selectable>
+            <tbody>
+                <tr ng-repeat="record in records" activable="record" selectable="record">
                     <td>{{ $index }}</td>
                     <td><select-box class="block-active"/></td>
                     <td>{{ record.name }}</td>
