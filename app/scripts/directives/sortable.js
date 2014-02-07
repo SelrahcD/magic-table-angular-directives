@@ -57,8 +57,6 @@ angular.module('sortable', [])
             require: '^sortableSet',
             link: function(scope, element, attr, ctrl) {
                 var key = attr.sortable;
-                var element = angular.element(element); 
-                
                 element.addClass('sortable sort');
 
                 scope.$watch(function() { return ctrl.sortKey;}, function() {
