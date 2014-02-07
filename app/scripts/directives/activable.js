@@ -23,7 +23,7 @@ angular.module('activable', [])
                         if(activeElementSet) {
                             activeElementSet($scope, value);
                         }
-                        
+
                         this.activeElement = value;
                     }
                     else {
@@ -50,7 +50,6 @@ angular.module('activable', [])
                 var currentElement = scope[attr.activable];
 
                 scope.$watch(function() { return ctrl.activeElement; }, function(newActiveElement, oldActiveElement) {
-                    // console.log(newActiveElement);
                     if(currentElement === newActiveElement) {
                         element.addClass('active');
                     }
